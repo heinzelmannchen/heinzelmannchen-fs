@@ -33,9 +33,13 @@ me.enurePathExists = function(path, createMissingFolders) {
             if (exists) {
                 q.resolve();
             } else if (createMissingFolders) {
-                Q.fcall(nodeFs.mkdir, path, 0755, true)
-                    .then(function() {
-                        q.resolve();
+                nodeFs.mkdir(path, 0755, true,
+                    function(error) {
+                        if (error) {
+                            q.reject();
+                        } else {
+                            q.resolve();
+                        }
                     });
             } else {
                 q.reject(new Error('path doesn\'t exist'));
@@ -48,13 +52,14 @@ me.enurePathExists = function(path, createMissingFolders) {
 me.pathExists = function(path) {
     var q = Q.defer();
 
-     Q.nfcall(fs.stat, path)
+    Q.nfcall(fs.stat, path)
         .then(function() {
-             q.resolve(true);
-         })
-        .catch(function(error) {
-            q.resolve(false);
-        });
+            q.resolve(true);
+        })
+        .
+    catch (function(error) {
+        q.resolve(false);
+    });
 
     return q.promise;
 };
@@ -66,9 +71,10 @@ me.createFile = function(pathName, content) {
         .then(function() {
             q.resolve();
         })
-        .catch(function(error) {
-            q.reject(error);
-        });
+        .
+    catch (function(error) {
+        q.reject(error);
+    });
 
     return q.promise;
 };
