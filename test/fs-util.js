@@ -55,6 +55,19 @@ describe('lib/fs-util', function() {
             return fsUtil.createFile('foo/bar/newFile.x', 'content').should.be.rejected;
         });
     });
+    describe('#unlink', function() {
+        beforeEach(function() {
+            mockFs({
+                'foo/bar/test/file.x': {}
+            });
+        });
+        it('should remove the file', function() {
+            return fsUtil.removeFile('foo/bar/test/file.x')
+                .then(function() {
+                    return fsUtil.readFileOrReturnData('foo/newFile.x');
+                }).should.be.rejected;
+        });
+    });
 
     describe('#pathExists', function() {
         beforeEach(function() {

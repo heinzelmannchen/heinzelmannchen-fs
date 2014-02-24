@@ -71,10 +71,23 @@ me.createFile = function(pathName, content) {
         .then(function() {
             q.resolve();
         })
-        .
-    catch (function(error) {
-        q.reject(error);
-    });
+        .fail(function(error) {
+            q.reject(error);
+        });
+
+    return q.promise;
+};
+
+me.removeFile = function(pathName) {
+    var q = Q.defer();
+
+    Q.nfcall(fs.unlink, pathName)
+        .then(function() {
+            q.resolve();
+        })
+        .fail(function(error) {
+            q.reject(error);
+        });
 
     return q.promise;
 };
