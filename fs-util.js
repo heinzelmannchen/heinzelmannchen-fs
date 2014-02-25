@@ -25,7 +25,7 @@ me.readFileOrReturnData = function(fileOrObject, theReadOptions) {
     return q.promise;
 };
 
-me.enurePathExists = function(path, createMissingFolders) {
+me.ensurePathExists = function(path, createMissingFolders) {
     var q = Q.defer();
 
     me.pathExists(path)
@@ -56,10 +56,9 @@ me.pathExists = function(path) {
         .then(function() {
             q.resolve(true);
         })
-        .
-    catch (function(error) {
-        q.resolve(false);
-    });
+        .fail(function(error) {
+            q.resolve(false);
+        });
 
     return q.promise;
 };
