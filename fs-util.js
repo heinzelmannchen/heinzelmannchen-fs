@@ -62,27 +62,11 @@ me.pathExists = function(path) {
 };
 
 me.createFile = function(pathName, content) {
-    var q = Q.defer();
-
-    Q.nfcall(fs.writeFile, pathName, content)
-        .then(function() {
-            q.resolve();
-        })
-        .fail(onFail(q));
-
-    return q.promise;
+    return Q.nfcall(fs.writeFile, pathName, content);
 };
 
 me.removeFile = function(pathName) {
-    var q = Q.defer();
-
-    Q.nfcall(fs.unlink, pathName)
-        .then(function() {
-            q.resolve();
-        })
-        .fail(onFail(q));
-
-    return q.promise;
+    return Q.nfcall(fs.unlink, pathName);
 };
 
 function onFail(q) {
