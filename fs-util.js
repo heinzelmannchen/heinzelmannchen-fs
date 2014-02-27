@@ -7,20 +7,16 @@ var Q = require('q'),
     me = module.exports;
 
 me.readFileOrReturnData = function(fileOrObject, theReadOptions) {
-    var q = Q.defer();
-    readOptions = theReadOptions ||  readOptions;
+    var q;
 
     if (typeof fileOrObject === 'object') {
+        q = Q.defer();
         q.resolve(fileOrObject);
+        return q.promise;
+    } else {
+        readOptions = theReadOptions ||  readOptions;
+        return Q.nfcall(fs.readFile, fileOrObject, readOptions);
     }
-
-    Q.nfcall(fs.readFile, fileOrObject, readOptions)
-        .then(function(result) {
-            q.resolve(result);
-        })
-        .fail(onFail(q));
-
-    return q.promise;
 };
 
 me.ensurePathExists = function(path, createMissingFolders) {
@@ -34,7 +30,7 @@ me.ensurePathExists = function(path, createMissingFolders) {
                 nodeFs.mkdir(path, 0755, true,
                     function(error) {
                         if (error) {
-                            q.reject();
+                            q.reject(error);
                         } else {
                             q.resolve();
                         }
