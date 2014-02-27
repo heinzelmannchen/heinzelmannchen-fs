@@ -18,9 +18,7 @@ me.readFileOrReturnData = function(fileOrObject, theReadOptions) {
         .then(function(result) {
             q.resolve(result);
         })
-        .fail(function(error) {
-            q.reject(error);
-        });
+        .fail(onFail(q));
 
     return q.promise;
 };
@@ -70,9 +68,7 @@ me.createFile = function(pathName, content) {
         .then(function() {
             q.resolve();
         })
-        .fail(function(error) {
-            q.reject(error);
-        });
+        .fail(onFail(q));
 
     return q.promise;
 };
@@ -84,9 +80,13 @@ me.removeFile = function(pathName) {
         .then(function() {
             q.resolve();
         })
-        .fail(function(error) {
-            q.reject(error);
-        });
+        .fail(onFail(q));
 
     return q.promise;
 };
+
+function onFail(q) {
+    return function(error) {
+        q.reject(error);
+    };
+}
