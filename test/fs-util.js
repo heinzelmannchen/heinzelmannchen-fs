@@ -75,6 +75,9 @@ describe('lib/fs-util', function() {
                 'foo/bar/test/file.x': {}
             });
         });
+        afterEach(function() {
+            mockFs.restore();
+        });
 
         it('should return true if paths exists', function() {
             return fsUtil.pathExists('foo/bar/test').should.become(true);

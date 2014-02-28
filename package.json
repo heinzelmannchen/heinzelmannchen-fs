@@ -22,7 +22,7 @@
     "mocha-jshint": "0.0.7"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha --reporter spec"
   },
   "repository": {
     "type": "git",
