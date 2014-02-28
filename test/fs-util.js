@@ -1,7 +1,7 @@
-var chai = require("chai"),
-    chaiAsPromised = require("chai-as-promised"),
+var chai = require('chai'),
+    chaiAsPromised = require('chai-as-promised'),
     should = chai.Should(),
-    mochaAsPromised = require("mocha-as-promised")(),
+    mochaAsPromised = require('mocha-as-promised')(),
     fsUtil = require('../fs-util'),
     mockFs = require('mock-fs');
 
