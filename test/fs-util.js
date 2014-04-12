@@ -1,7 +1,7 @@
-var chai = require("chai"),
-    chaiAsPromised = require("chai-as-promised"),
+var chai = require('chai'),
+    chaiAsPromised = require('chai-as-promised'),
     should = chai.Should(),
-    mochaAsPromised = require("mocha-as-promised")(),
+    mochaAsPromised = require('mocha-as-promised')(),
     fsUtil = require('../fs-util'),
     mockFs = require('mock-fs');
 
@@ -68,12 +68,28 @@ describe('lib/fs-util', function() {
             return fsUtil.createFile('existing.x', 'content', {force: true}).should.be.ok;
         });
     });
+    describe('#unlink', function() {
+        beforeEach(function() {
+            mockFs({
+                'foo/bar/test/file.x': {}
+            });
+        });
+        it('should remove the file', function() {
+            return fsUtil.removeFile('foo/bar/test/file.x')
+                .then(function() {
+                    return fsUtil.readFileOrReturnData('foo/newFile.x');
+                }).should.be.rejected;
+        });
+    });
 
     describe('#pathExists', function() {
         beforeEach(function() {
             mockFs({
                 'foo/bar/test/file.x': {}
             });
+        });
+        afterEach(function() {
+            mockFs.restore();
         });
 
         it('should return true if paths exists', function() {

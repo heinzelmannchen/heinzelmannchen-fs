@@ -7,25 +7,19 @@ var Q = require('q'),
     me = module.exports;
 
 me.readFileOrReturnData = function(fileOrObject, theReadOptions) {
-    var q = Q.defer();
-    readOptions = theReadOptions ||  readOptions;
+    var q;
 
     if (typeof fileOrObject === 'object') {
+        q = Q.defer();
         q.resolve(fileOrObject);
+        return q.promise;
+    } else {
+        readOptions = theReadOptions ||  readOptions;
+        return Q.nfcall(fs.readFile, fileOrObject, readOptions);
     }
-
-    Q.nfcall(fs.readFile, fileOrObject, readOptions)
-        .then(function(result) {
-            q.resolve(result);
-        })
-        .fail(function(error) {
-            q.reject(error);
-        });
-
-    return q.promise;
 };
 
-me.enurePathExists = function(path, createMissingFolders) {
+me.ensurePathExists = function(path, createMissingFolders) {
     var q = Q.defer();
 
     me.pathExists(path)
@@ -33,9 +27,13 @@ me.enurePathExists = function(path, createMissingFolders) {
             if (exists) {
                 q.resolve();
             } else if (createMissingFolders) {
-                Q.fcall(nodeFs.mkdir, path, 0755, true)
-                    .then(function() {
-                        q.resolve();
+                nodeFs.mkdir(path, 0755, true,
+                    function(error) {
+                        if (error) {
+                            q.reject(error);
+                        } else {
+                            q.resolve();
+                        }
                     });
             } else {
                 q.reject(new Error('path doesn\'t exist'));
@@ -48,11 +46,11 @@ me.enurePathExists = function(path, createMissingFolders) {
 me.pathExists = function(path) {
     var q = Q.defer();
 
-     Q.nfcall(fs.stat, path)
+    Q.nfcall(fs.stat, path)
         .then(function() {
-             q.resolve(true);
-         })
-        .catch(function(error) {
+            q.resolve(true);
+        })
+        .fail(function(error) {
             q.resolve(false);
         });
 
@@ -61,23 +59,22 @@ me.pathExists = function(path) {
 
 me.createFile = function(pathName, content, options) {
     var q = Q.defer(),
-        options = options || {};
+            write = function() {
+                Q.nfcall(fs.writeFile, pathName, content)
+                .then(function() {
+                    q.resolve();
+                })
+                .catch(function(error) {
+                    q.reject(error);
+                });
+            };
+    options = options || {};
 
-    write = function() {
-        Q.nfcall(fs.writeFile, pathName, content)
-        .then(function() {
-            q.resolve();
-        })
-        .catch(function(error) {
-            q.reject(error);
-        });
-    };
-    
     if (!options.force){
         me.pathExists(pathName)
             .then(function(exists){
-                if (!exists) write();
-                else q.reject('file ' + pathName + 'already exists, use force to override');
+                if (!exists) { write(); }
+                else { q.reject('file ' + pathName + 'already exists, use force to override'); }
             });
     } else {
         write();
@@ -85,3 +82,13 @@ me.createFile = function(pathName, content, options) {
 
     return q.promise;
 };
+
+me.removeFile = function(pathName) {
+    return Q.nfcall(fs.unlink, pathName);
+};
+
+function onFail(q) {
+    return function(error) {
+        q.reject(error);
+    };
+}
