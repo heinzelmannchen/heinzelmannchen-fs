@@ -59,16 +59,29 @@ me.pathExists = function(path) {
     return q.promise;
 };
 
-me.createFile = function(pathName, content) {
-    var q = Q.defer();
+me.createFile = function(pathName, content, options) {
+    var q = Q.defer(),
+        options = options || {};
 
-    Q.nfcall(fs.writeFile, pathName, content)
+    write = function() {
+        Q.nfcall(fs.writeFile, pathName, content)
         .then(function() {
             q.resolve();
         })
         .catch(function(error) {
             q.reject(error);
         });
+    };
+    
+    if (!options.force){
+        me.pathExists(pathName)
+            .then(function(exists){
+                if (!exists) write();
+                else q.reject('file ' + pathName + 'already exists, use force to override');
+            });
+    } else {
+        write();
+    }
 
     return q.promise;
 };

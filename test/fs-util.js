@@ -40,7 +40,8 @@ describe('lib/fs-util', function() {
     describe('#createFile', function() {
         beforeEach(function() {
             mockFs({
-                'foo': {}
+                'foo': {},
+                'existing.x' : {}
             });
         });
 
@@ -51,8 +52,20 @@ describe('lib/fs-util', function() {
                 }).should.become('content');
         });
 
-        it('should file if path doesn\'t exist', function() {
+        it('should fail if path doesn\'t exist', function() {
             return fsUtil.createFile('foo/bar/newFile.x', 'content').should.be.rejected;
+        });
+
+        it('should fail if a file with the same name exists and no force option is used', function() {
+            return fsUtil.createFile('existing.x', 'content').should.be.rejected;
+        });
+        
+        it('should fail if a file with the same name exists and force is false', function() {
+            return fsUtil.createFile('existing.x', 'content', {force: false}).should.be.rejected;
+        });
+
+        it('should write if a file with tha same name exists and force is used', function() {
+            return fsUtil.createFile('existing.x', 'content', {force: true}).should.be.ok;
         });
     });
 
