@@ -74,7 +74,7 @@ me.createFile = function(pathName, content, options) {
         me.pathExists(pathName)
             .then(function(exists){
                 if (!exists) { write(); }
-                else { q.reject(new Error('file ' + pathName + 'already exists, use force to override')); }
+                else { q.reject(new Error('file ' + pathName + ' already exists, use force to override')); }
             });
     } else {
         write();
