@@ -58,30 +58,31 @@ me.pathExists = function(path) {
 };
 
 me.createFile = function(pathName, content, options) {
-    var q = Q.defer(),
-            write = function() {
-                Q.nfcall(fs.writeFile, pathName, content)
-                .then(function() {
-                    q.resolve();
-                })
-                .catch(function(error) {
-                    q.reject(error);
-                });
-            };
-    options = options || {};
+    var q = Q.defer();
 
-    if (!options.force){
+    options = options || {};
+    if (!options.override){
         me.pathExists(pathName)
             .then(function(exists){
-                if (!exists) { write(); }
-                else { q.reject(new Error('file ' + pathName + ' already exists, use force to override')); }
+                if (!exists) { writeFilePromised(pathName, content, q); }
+                else { q.reject(new Error('file ' + pathName + ' already exists, use override to override')); }
             });
     } else {
-        write();
+        writeFilePromised(pathName, content, q);
     }
 
     return q.promise;
 };
+
+function writeFilePromised(path, content, promise) {
+    Q.nfcall(fs.writeFile, path, content)
+        .then(function () {
+            promise.resolve(path);
+        })
+        .catch(function (error) {
+            promise.reject(error);
+        });
+}
 
 me.removeFile = function(pathName) {
     return Q.nfcall(fs.unlink, pathName);
