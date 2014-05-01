@@ -21,18 +21,17 @@ me.readFileOrReturnData = function(fileOrObject, theReadOptions) {
 
 me.ensurePathExists = function(path, createMissingFolders) {
     var q = Q.defer();
-
     me.pathExists(path)
         .then(function onPathExistenceChecked(exists) {
             if (exists) {
                 q.resolve();
             } else if (createMissingFolders) {
                 nodeFs.mkdir(path, 0755, true,
-                    function(error) {
+                    function (error) {
                         if (error) {
                             q.reject(error);
                         } else {
-                            q.resolve();
+                            q.resolve(path);
                         }
                     });
             } else {
@@ -61,6 +60,7 @@ me.createFile = function(pathName, content, options) {
     var q = Q.defer();
 
     options = options || {};
+
     if (!options.override){
         me.pathExists(pathName)
             .then(function(exists){
