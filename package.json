@@ -1,6 +1,6 @@
 {
   "name": "heinzelmannchen-fs",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "File System Stuff",
   "main": "fs-util.js",
   "directories": {
