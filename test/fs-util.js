@@ -3,6 +3,7 @@ var chai = require('chai'),
     should = chai.Should(),
     mochaAsPromised = require('mocha-as-promised')(),
     fsUtil = require('../fs-util'),
+    Q = require('q'),
     mockFs = require('mock-fs');
 
 describe('lib/fs-util', function() {
@@ -40,7 +41,9 @@ describe('lib/fs-util', function() {
     describe('#createFile', function() {
         beforeEach(function() {
             mockFs({
-                'foo': {}
+                'foo': {},
+                'existing.x': 'existing content',
+                'existing2.x': 'existing content'
             });
         });
 
@@ -51,10 +54,39 @@ describe('lib/fs-util', function() {
                 }).should.become('content');
         });
 
-        it('should file if path doesn\'t exist', function() {
+        it('should fail if path doesn\'t exist', function() {
             return fsUtil.createFile('foo/bar/newFile.x', 'content').should.be.rejected;
         });
+
+        it('should fail if a file with the same name exists and no override option is used', function() {
+            return fsUtil.createFile('existing.x', 'content').should.be.rejected;
+        });
+        
+        it('should fail if a file with the same name exists and override is false', function() {
+            return fsUtil.createFile('existing.x', 'content', { override: false }).should.be.rejected;
+        });
+
+        it('should write if a file with the same name exists and override is used', function () {
+            return fsUtil.createFile('existing.x', 'content', { override: true }).should.be.resolved;
+        });
+
+        it('should write if file doesn\'t exist and override is used', function () {
+            return fsUtil.createFile('newFile.x', 'content', { override: true }).should.be.fulfilled;
+        });
+
+        it('should write multiple files with override flags', function (done) {
+            var promises = Q.all([
+                fsUtil.createFile('newFile1.x', 'content', { override: true }).should.be.fulfilled,
+                fsUtil.createFile('newFile2.x', 'content', { override: false }).should.be.fulfilled,
+                fsUtil.createFile('newFile3.x', 'content').should.be.fulfilled,
+                fsUtil.createFile('existing.x', 'content', { override: false }).should.be.rejected,
+                fsUtil.createFile('existing.x', 'content', { override: true }).should.be.fulfilled,
+                fsUtil.createFile('existing2.x', 'content', { override: true }).should.be.fulfilled
+            ]);
+            return promises.should.notify(done);
+        });
     });
+
     describe('#unlink', function() {
         beforeEach(function() {
             mockFs({
