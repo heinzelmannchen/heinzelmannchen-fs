@@ -29,7 +29,7 @@
     "url": "https://github.com/heinzelmannchen/heinzelmannchen-fs.git"
   },
   "author": "Christoph Hermann & Sebastian Sprenger",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/heinzelmannchen/heinzelmannchen-fs/issues"
   },
